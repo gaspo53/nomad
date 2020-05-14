@@ -93,11 +93,11 @@ func TestEnvoyBootstrapHook_decodeTriState(t *testing.T) {
 }
 
 var (
-	consulPlainConfig = envoyBootstrapConsulConfig{
+	consulPlainConfig = consulTransportConfig{
 		HTTPAddr: "2.2.2.2",
 	}
 
-	consulTLSConfig = envoyBootstrapConsulConfig{
+	consulTLSConfig = consulTransportConfig{
 		HTTPAddr:  "2.2.2.2",            // arg
 		Auth:      "user:password",      // env
 		SSL:       "true",               // env
