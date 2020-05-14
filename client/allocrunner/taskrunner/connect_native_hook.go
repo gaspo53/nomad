@@ -2,6 +2,7 @@ package taskrunner
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -134,4 +135,39 @@ func (connectNativeHook) copyCertificate(source, dir, name string) error {
 	}
 
 	return nil
+}
+
+// env creates the context of environment variables to be used when launching
+// the connect native task. It is expected the value of os.Environ() is passed
+// in to be appended to.
+func (h *connectNativeHook) env(env []string) []string {
+	addSecret := func(variable, filename string) {
+		env = append(env, fmt.Sprintf(
+			"%s=%s", variable, filepath.Join("secrets", filename),
+		))
+	}
+
+	if h.consulConfig.CAFile != "" {
+		addSecret("CONSUL_CA_FILE", secretCAFilename)
+	}
+
+	if h.consulConfig.CertFile != "" {
+		addSecret("CONSUL_CERT_FILE", secretCertfileFilename)
+	}
+
+	if h.consulConfig.KeyFile != "" {
+		addSecret("CONSUL_KEY_FILE", secretKeyfileFilename)
+	}
+
+	if v := h.consulConfig.Auth; v != "" {
+		env = append(env, fmt.Sprintf("%s=%s", "CONSUL_HTTP_AUTH", v))
+	}
+	if v := h.consulConfig.SSL; v != "" {
+		env = append(env, fmt.Sprintf("%s=%s", "CONSUL_HTTP_SSL", v))
+	}
+	if v := h.consulConfig.VerifySSL; v != "" {
+		env = append(env, fmt.Sprintf("%s=%s", "CONSUL_HTTP_SSL_VERIFY", v))
+	}
+
+	return env
 }
