@@ -2,6 +2,7 @@ package taskrunner
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -84,10 +85,11 @@ func (h *connectNativeHook) Prestart(
 
 	// set environment variables for communicating with Consul agent
 	response.Env = h.tlsEnv()
-	if err := h.maybeSetSITokenEnv(request.Task.Name, response.Env); err != nil {
+	if err := h.maybeSetSITokenEnv(request.TaskDir.SecretsDir, request.Task.Name, response.Env); err != nil {
 		h.logger.Error("failed to load Consul Service Identity Token", "error", err, "task", request.Task.Name)
 		return err
 	}
+	fmt.Println("response.Env:", response.Env)
 
 	// tls/acl setup for native task done
 	response.Done = true
@@ -191,8 +193,8 @@ func (h *connectNativeHook) tlsEnv() map[string]string {
 // done in the sids_hook, which places the token at secrets/si_token in the task
 // workspace. The content of that file is the SI token specific to this task
 // instance.
-func (h *connectNativeHook) maybeSetSITokenEnv(task string, env map[string]string) error {
-	token, err := ioutil.ReadFile(filepath.Join("/secrets", sidsTokenFile))
+func (h *connectNativeHook) maybeSetSITokenEnv(dir, task string, env map[string]string) error {
+	token, err := ioutil.ReadFile(filepath.Join(dir, sidsTokenFile))
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return errors.Wrapf(err, "failed to load SI token for native task %s", task)

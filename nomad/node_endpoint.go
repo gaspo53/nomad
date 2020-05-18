@@ -1891,8 +1891,7 @@ func taskUsesConnect(task *structs.Task) bool {
 		// not even in the task group
 		return false
 	}
-	// todo(shoenig): TBD what Kind does a native task have?
-	return task.Kind.IsConnectProxy()
+	return task.UsesConnect()
 }
 
 func (n *Node) EmitEvents(args *structs.EmitNodeEventsRequest, reply *structs.EmitNodeEventsResponse) error {

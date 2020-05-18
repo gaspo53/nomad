@@ -213,6 +213,8 @@ func (c *consulACLsAPI) CreateToken(ctx context.Context, sii ServiceIdentityInde
 
 	// the SI token created must be for the service, not the sidecar of the service
 	// https://www.consul.io/docs/acl/acl-system.html#acl-service-identities
+	//
+	// hmmmmm
 	serviceName := strings.TrimPrefix(sii.TaskName, structs.ConnectProxyPrefix+"-")
 	partial := &api.ACLToken{
 		Description:       sii.Description(),
